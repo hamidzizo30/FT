@@ -429,6 +429,54 @@ function notifMap(to, title, body, extra={}){
   return {["notifs/"+id]: {id, to, title, body, at:Date.now(), from: ME()?.id || null, ...extra}};
 }
 
+/* re-evaluate champion/completion after the roster changes */
+function settle(tid){
+  const t=DB.tournaments[tid]; if(!t || t.status!=="active") return;
+  const ms=matchesOf(t), rows=standings(t), map={};
+  if(rows.length<2) return;
+  if(ms.length && ms.every(m=>m.played)){
+    map[`tournaments/${tid}/status`]="finished"; map[`tournaments/${tid}/winner`]=rows[0].id; map[`tournaments/${tid}/finishedAt`]=Date.now();
+    Object.assign(map, notifMap("all","🏆 "+pName(t,rows[0].id)+" win"+(isDuo(t)?"":"s")+" "+t.name+"!","All matches played."));
+  } else {
+    const want = isClinched(rows) ? rows[0].id : null;
+    if(want !== (t.winner||null)){
+      map[`tournaments/${tid}/winner`]=want; map[`tournaments/${tid}/clinchedAt`]=want?Date.now():null; map[`tournaments/${tid}/clinchAck`]=null;
+      if(want) Object.assign(map, notifMap("all","👑 "+pName(t,want)+(isDuo(t)?" are":" is")+" the champion!",t.name));
+    }
+  }
+  if(Object.keys(map).length) dbUpdate(map);
+}
+function removeParticipant(tid,pid){
+  const t=DB.tournaments[tid], name=pName(t,pid), notifyTo=tUsers(t), map={};
+  map[`tournaments/${tid}/players`]=playersOf(t).filter(x=>x!==pid);
+  matchesOf(t).forEach(m=>{ if(m.home===pid||m.away===pid) map[`tournaments/${tid}/matches/${m.id}`]=null; });
+  if(isDuo(t)) map[`tournaments/${tid}/teams/${pid}`]=null;
+  Object.assign(map, notifMap(notifyTo, "➖ "+name+" left "+t.name, "Their matches were removed from the league."));
+  dbUpdate(map); settle(tid);
+}
+/* new participant: catch-up fixtures vs everyone, one per matchday starting now */
+function addParticipant(tid,pid,team){
+  const t=DB.tournaments[tid], others=playersOf(t), ms=matchesOf(t), map={};
+  const open=ms.filter(m=>!m.played), r0 = open.length ? Math.min(...open.map(m=>m.round)) : (ms.length?Math.max(...ms.map(m=>m.round))+1:1);
+  let n = ms.length ? Math.max(...ms.map(m=>m.n||0)) : 0, k=0;
+  const opp = shuffle(others);
+  for(let c=0;c<(t.cycles||1);c++){
+    opp.forEach((o,i)=>{
+      const homeNew = (i+c)%2===0;
+      const id="m"+Date.now().toString(36)+(k).toString().padStart(3,"0");
+      // n:0.5-style ordering puts catch-up games first within their matchday
+      map[`tournaments/${tid}/matches/${id}`]={id, round:r0+k, n:-(1000-k), home: homeNew?pid:o, away: homeNew?o:pid, played:false, catchup:true};
+      k++;
+    });
+  }
+  if(team) map[`tournaments/${tid}/teams/${pid}`]=team;
+  map[`tournaments/${tid}/players`]=[...others,pid];
+  const tmp={...t, teams:{...(t.teams||{}), ...(team?{[pid]:team}:{})}};
+  const name=pName(tmp,pid);
+  Object.assign(map, notifMap([...tUsers(t), ...members(tmp,pid)], "➕ "+name+" joined "+t.name, k+" catch-up matches added."));
+  dbUpdate(map); settle(tid);
+}
+
 /* after any result: detect early champion / completion */
 function postResult(tid, m){
   const t = DB.tournaments[tid]; if(!t) return;
@@ -648,7 +696,18 @@ function viewHome(){
     } else if(inT){
       h += ``;
     }
-    if(nextUp && myNext && nextUp.id!==myNext.id){
+    if(me.isAdmin){
+      const up = ms.filter(m=>!m.played), lim = ui.allUp ? up.length : 6;
+      if(up.length){
+        let lastR=null;
+        h += `<div class="sec h row between"><span>Upcoming · ${up.length}</span><button class="small" style="color:var(--a1)" data-a="manage" data-id="${t.id}">Manage players</button></div>`;
+        up.slice(0,lim).forEach((m,i)=>{
+          if(m.round!==lastR){ h += `<div class="small mut" style="margin:10px 4px 2px">Matchday ${m.round}</div>`; lastR=m.round; }
+          h += matchRow(t,m);
+        });
+        if(up.length>6) h += `<button class="btn sm ghost" style="width:100%;margin-top:4px" data-a="toggleup">${ui.allUp?"Show less":"Show all"}</button>`;
+      }
+    } else if(nextUp && myNext && nextUp.id!==myNext.id){
       h += `<div class="sec h">Next up</div>` + matchRow(t,nextUp);
     }
     // mini table
@@ -929,6 +988,31 @@ function sheetNewTour(){
   };
 }
 
+function sheetManage(tid){
+  const t=DB.tournaments[tid]; if(!t) return closeSheet();
+  const inUsers=new Set(tUsers(t)), free=users().filter(u=>!inUsers.has(u.id));
+  const pick = sheetManage.pick = (sheetManage.tid===tid ? sheetManage.pick : []) ; sheetManage.tid=tid;
+  openSheet(`<div class="h it" style="font-size:24px;font-weight:700">Players</div>
+    <div class="sec h">In tournament</div>
+    ${playersOf(t).map(p=>`<div class="team" style="justify-content:space-between">
+      <div class="row" style="gap:8px;min-width:0">${pAv(t,p,"sm")}<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(pName(t,p))}</span></div>
+      ${playersOf(t).length>2?`<button class="btn sm ghost" data-rm="${p}">Remove</button>`:""}</div>`).join("")}
+    <div class="sec h">${isDuo(t)?"Add team":"Add player"}</div>
+    ${free.length? `<div style="display:flex;flex-wrap:wrap;gap:8px">${free.map(u=>`<button class="chip ${pick.includes(u.id)?"on":""}" data-add="${u.id}">${esc(u.name)}</button>`).join("")}</div>
+      ${isDuo(t)?`<div class="row" style="margin-top:10px"><button class="btn sm sec2 grow" style="width:100%" data-randpair="1" ${free.length<2?"disabled":""}>Random pair</button><button class="btn sm grow" style="width:100%" data-addteam="1" ${pick.length!==2?"disabled style='opacity:.5;width:100%'":""}>Add team</button></div>`:""}`
+      : `<div class="small mut">Everyone is already in</div>`}`);
+  $("#modal").querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{ const p=b.dataset.rm;
+    sheetConfirm(`Remove ${esc(pName(t,p))}?`,"","Remove",()=>{ removeParticipant(tid,p); toast("Removed"); },true); });
+  $("#modal").querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{ const id=b.dataset.add;
+    if(!isDuo(t)){ sheetConfirm(`Add ${esc(U(id).name)}?`,"","Add",()=>{ addParticipant(tid,id); toast("Added"); }); return; }
+    const i=pick.indexOf(id); i>=0?pick.splice(i,1):(pick.length<2&&pick.push(id)); sheetManage(tid); });
+  const rp=$("[data-randpair]"); if(rp) rp.onclick=()=>{ const [a,b]=shuffle(free.map(u=>u.id)); sheetManage.pick=[a,b]; sheetManage(tid); };
+  const at=$("[data-addteam]"); if(at) at.onclick=()=>{ if(pick.length!==2) return;
+    const nums=Object.keys(t.teams||{}).map(k=>parseInt(k.slice(1))||0), tid2="d"+(Math.max(0,...nums)+1);
+    const team={id:tid2, members:[...pick]}; sheetManage.pick=[];
+    sheetConfirm(`Add ${esc(U(pick[0]).name)} & ${esc(U(pick[1]).name)}?`,"","Add team",()=>{ addParticipant(tid,tid2,team); toast("Team added"); }); };
+}
+
 function sheetNotifs(){
   const me=ME(), list=myNotifs().slice(0,40), un=unread();
   openSheet(`<div class="h it" style="font-size:26px;font-weight:700;margin-bottom:8px">Notifications</div>
@@ -983,6 +1067,8 @@ document.addEventListener("click", e=>{
   if(a==="closebg"){ if(e.target===el) closeSheet(); return; }
   switch(a){
     case "close": closeSheet(); break;
+    case "manage": sheetManage.pick=[]; sheetManage(id); break;
+    case "toggleup": ui.allUp=!ui.allUp; render(); break;
     case "pickuser": ui.login={step:"pass",user:id}; render(); break;
     case "loginback": ui.login={step:"pick"}; render(); break;
     case "nav": ui.view=el.dataset.v; ui.profile=null; render(); scrollTo(0,0); break;
@@ -1005,8 +1091,9 @@ document.addEventListener("click", e=>{
     case "toggleadmin": { const u=U(id); if(u.id===ME().id) return; dbUpdate({[`users/${id}/isAdmin`]:!u.isAdmin}); break; }
     case "tmenu": { const t=DB.tournaments[id];
       openSheet(`<div class="h it" style="font-size:24px;font-weight:700">${esc(t.name)}</div>
-        ${t.status==="active"?`<button class="btn sec2" style="margin-top:12px" id="tm_finish">Finish now</button>`:`<button class="btn sec2" style="margin-top:12px" id="tm_reopen">Reopen tournament</button>`}
+        ${t.status==="active"?`<button class="btn sec2" style="margin-top:12px" id="tm_manage">Manage players</button><button class="btn sec2" style="margin-top:8px" id="tm_finish">Finish now</button>`:`<button class="btn sec2" style="margin-top:12px" id="tm_reopen">Reopen tournament</button>`}
         <button class="btn danger" style="margin-top:8px" id="tm_del">Delete tournament</button>`);
+      const mg=$("#tm_manage"); if(mg) mg.onclick=()=>{ sheetManage.pick=[]; sheetManage(id); };
       const f=$("#tm_finish"); if(f) f.onclick=()=>{ closeSheet(); el.dataset.a="finish"; sheetConfirm("Finish tournament?","The current leader will be crowned. Unplayed matches stay unplayed.","Finish",()=>finishTour(id)); };
       const r=$("#tm_reopen"); if(r) r.onclick=()=>{ closeSheet(); const rows=standings(t); dbUpdate({[`tournaments/${id}/status`]:"active",[`tournaments/${id}/finishedAt`]:null,[`tournaments/${id}/winner`]:isClinched(rows)?rows[0].id:null}); };
       $("#tm_del").onclick=()=>sheetConfirm("Delete tournament?","This removes all its matches and stats. Can't be undone.","Delete",()=>{ ui.tid=null; dbUpdate({["tournaments/"+id]:null}); },true);
