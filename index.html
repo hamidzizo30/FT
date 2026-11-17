@@ -10,7 +10,6 @@
 <title>Friday League</title>
 <meta name="description" content="eFootball tournaments with friends">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/svg+xml" href="logo.svg">
 <link rel="icon" type="image/png" href="favicon-48.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Friday League">
@@ -536,7 +535,7 @@ function toast(html, raw){ const el=$("#toast"); el.innerHTML=`<div class="toast
 
 /* ================= RENDER ================= */
 function render(){
-  if(!ready){ $("#app").innerHTML = `<div class="login" style="justify-content:center;align-items:center"><div class="logo" style="width:64px;height:64px">${ICON.star}</div><p class="mut">Loading league…</p></div>`; return; }
+  if(!ready){ $("#app").innerHTML = `<div class="login" style="justify-content:center;align-items:center"><div class="h" style="font-size:24px;font-weight:700">Friday League</div></div>`; return; }
   const me = ME();
   if(!me){ if(document.activeElement && document.activeElement.closest && document.activeElement.closest('#loginform')) return; renderLogin(); return; }
   document.documentElement.dataset.theme = localStorage.getItem("fl_theme") || "ucl";
@@ -548,7 +547,7 @@ function render(){
   <div class="wrap">
     <div class="top row between">
       <div class="brand">
-        ${ui.profile ? `<button class="iconbtn" data-a="back">${ICON.back}</button>` : `<div class="logo">${ICON.star}</div>`}
+        ${ui.profile ? `<button class="iconbtn" data-a="back">${ICON.back}</button>` : ""}
         <div><div class="t h">Friday League</div><div class="s"><span id="syncdot"></span></div></div>
       </div>
       <div class="row" style="gap:8px">
@@ -577,8 +576,7 @@ function renderLogin(){
   const u = sel ? U(sel) : null, first = u && !u.pass;
   $("#app").innerHTML = `
   <div class="login" style="justify-content:center">
-    <div class="logo" style="width:76px;height:76px;border-radius:20px">${ICON.star}</div>
-    <div class="bigtitle h" style="margin:18px 0 22px">Friday League</div>
+    <div class="bigtitle h" style="margin:0 0 22px">Friday League</div>
     <form id="loginform" autocomplete="off">
       <div class="field"><label>User</label>
         <select class="inp" id="usel">
