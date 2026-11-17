@@ -11,13 +11,13 @@
   "theme_color": "#0b0c14",
   "categories": ["sports", "games"],
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "screenshots": [
-    { "src": "screenshots/login.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "Login" },
-    { "src": "screenshots/home.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "Home" },
-    { "src": "screenshots/table.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "League table" }
+    { "src": "screenshot-login.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "Login" },
+    { "src": "screenshot-home.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "Home" },
+    { "src": "screenshot-table.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "League table" }
   ]
 }

@@ -8,8 +8,8 @@ The app is hosted free on GitHub Pages, packaged as an Android app with PWABuild
 | `index.html` | the whole app |
 | `manifest.webmanifest` | app name, icons and colours, used for installing and by PWABuilder |
 | `sw.js` | service worker, which makes the app installable and lets it open offline |
-| `icons/` | app icons, including a maskable icon for Android |
-| `screenshots/` | store screenshots that PWABuilder picks up |
+| `icon-192.png`, `icon-512.png`, `maskable-512.png`, `apple-touch-icon.png`, `favicon-48.png`, `logo.svg` | app icons |
+| `screenshot-*.png` | store screenshots that PWABuilder picks up |
 | `.nojekyll` | tells GitHub Pages to serve the files exactly as they are |
 
 ## 1. Firebase (data)
@@ -24,7 +24,7 @@ In the Firebase console, open **Realtime Database → Rules**, set the rules bel
 ## 2. GitHub Pages (hosting)
 1. Go to https://github.com/new and name the repository `friday-tournament`. Set it to **Public** (Pages is free only for public repos) and click **Create repository**.
 2. On the new repo page, click **uploading an existing file**.
-3. Open **E:\Friday Tournament** in Explorer, select **everything inside it** (`index.html`, `manifest.webmanifest`, `sw.js`, `.nojekyll`, the `icons` folder and the `screenshots` folder) and drag it all onto the page. Then click **Commit changes**.
+3. Open **E:\Friday Tournament** in Explorer, select **all the files** (there are no subfolders) and drag them onto the page. Then click **Commit changes**.
    - Windows hides `.nojekyll` by default. Turn on *View → Show → Hidden items* so you can select it. If you skip it, the app still works.
 4. Go to **Settings → Pages**. Under *Build and deployment*, set Source to **Deploy from a branch**, Branch to **main**, folder **/ (root)**, then click **Save**.
 5. Wait 1–2 minutes. Your app is now live at
