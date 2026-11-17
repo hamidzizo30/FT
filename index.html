@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="ucl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#0b0c14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Friday League</title>
+<meta name="description" content="eFootball tournaments with friends">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/logo.svg">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Friday League">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ================= THEMES ================= */
+:root[data-theme="ucl"]{
+  --bg:#0b0c14; --bg2:#12131d; --card:#151724; --card2:#1c1f30;
+  --line:rgba(255,255,255,.07); --txt:#f2f3f8; --mut:#7d8197;
+  --a1:#3d63ff; --a2:#a13dff; --a3:#36d6ff;
+  --grad:#5b5bff;
+  --glow:none;
+  --win:#2fe39a; --draw:#c9cfee; --loss:#ff5a7a;
+}
+:root[data-theme="akira"]{
+  --bg:#0a0a0a; --bg2:#131313; --card:#161616; --card2:#1f1f1f;
+  --line:rgba(255,255,255,.07); --txt:#f4f4f4; --mut:#858585;
+  --a1:#ff2323; --a2:#b30012; --a3:#ff6a3d;
+  --grad:#e5252a;
+  --glow:none;
+  --win:#2fe39a; --draw:#d8cccc; --loss:#ff6a6a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--txt);background:var(--bg);min-height:100%;overscroll-behavior-y:none;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select{font:inherit;color:var(--txt)}
+.wrap{max-width:480px;margin:0 auto;padding:0 16px calc(96px + env(safe-area-inset-bottom));min-height:100vh}
+.h{font-family:Inter,system-ui,sans-serif;letter-spacing:-.02em}
+.it{font-style:normal}
+.mut{color:var(--mut)}
+.small{font-size:12px}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+.center{text-align:center}
+.hidden{display:none!important}
+
+/* header */
+.top{position:sticky;top:0;z-index:20;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;margin:0 -16px 6px;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 70%,transparent);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border-radius:9px;background:#000;border:1px solid var(--line);display:grid;place-items:center}
+.brand .t{font-size:18px;font-weight:700;line-height:1}
+.brand .s{font-size:11px;color:var(--mut);margin-top:3px}
+.iconbtn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--card);border:1px solid var(--line);position:relative}
+.badge{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;border-radius:8px;background:var(--a1);font-size:10px;font-weight:600;display:grid;place-items:center;padding:0 4px;color:#fff}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin:12px 0;}
+.hero{position:relative;overflow:hidden}
+
+.hero > *{position:relative;z-index:1}
+.sec{margin:24px 2px 8px;font-size:13px;color:var(--mut);font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;background:var(--card2);border:1px solid var(--line)}
+.pill.live{background:transparent}
+.pill.gold{background:transparent;border-color:rgba(240,199,94,.4);color:#f0c75e}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--win);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 20px;border-radius:14px;font-weight:600;color:#fff;background:var(--grad);box-shadow:var(--glow);width:100%;font-size:15px}
+.btn.sec2{background:var(--card2);box-shadow:none;border:1px solid var(--line)}
+.btn.ghost{background:transparent;box-shadow:none;border:1px solid var(--line)}
+.btn.danger{background:linear-gradient(135deg,#ff3b5c,#a1002a);box-shadow:none}
+.btn.sm{height:38px;font-size:13px;padding:0 14px;border-radius:12px;width:auto}
+.btn:active,.iconbtn:active,.tap:active{transform:scale(.97)}
+.progress{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
+.progress > i{display:block;height:100%;background:var(--grad);border-radius:6px}
+
+/* avatars */
+.av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:15px;flex:none;color:#fff}
+.av.lg{width:60px;height:60px;font-size:22px}
+.av.xl{width:84px;height:84px;font-size:30px}
+.av.sm{width:28px;height:28px;font-size:11px}
+.duo{display:flex;flex:none}
+.duo .av{box-shadow:0 0 0 2px var(--bg)}
+.duo .av + .av{margin-left:-10px}
+.duo.lg .av + .av{margin-left:-20px}
+select.inp{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);background-position:calc(100% - 20px) 22px,calc(100% - 15px) 22px;background-size:5px 5px;background-repeat:no-repeat}
+select.inp option{background:var(--bg2);color:var(--txt)}
+.team{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;background:var(--card);border:1px solid var(--line);margin:6px 0;font-size:14px}
+.team .chip{padding:6px 12px}
+
+/* match */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:14px 0}
+.vs .p{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0}
+.vs .p .n{font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.vs .mid{font-weight:500;font-size:15px;padding:0 6px;color:var(--mut)}
+.vs .score{font-size:40px;font-weight:700;color:var(--txt)}
+.mrow{display:grid;grid-template-columns:1fr 64px 1fr;align-items:center;gap:6px;padding:12px;border-radius:14px;background:var(--card);border:1px solid var(--line);margin:8px 0}
+.mrow .side{display:flex;align-items:center;gap:8px;min-width:0;font-weight:600;font-size:14px}
+.mrow .side span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow .side.r{justify-content:flex-end;text-align:right}
+.mrow .sc{text-align:center;font-weight:700;font-size:17px;border-radius:10px;padding:2px 0}
+.mrow .sc.pending{font-size:12px;color:var(--mut);font-weight:500;background:rgba(255,255,255,.04)}
+.mrow.mine{border-color:color-mix(in srgb,var(--a1) 45%,transparent)}
+.mrow .w{color:var(--txt)} .mrow .l{color:var(--mut)}
+.mrow.tap{cursor:pointer}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:11px;color:var(--mut);font-weight:500;padding:6px 4px;text-align:center}
+td{padding:10px 4px;text-align:center;border-top:1px solid var(--line)}
+td.pl{text-align:left}
+th.pl{text-align:left}
+td.pts{font-weight:700;font-size:15px}
+
+tr.me td.pl b{color:var(--a1)}
+.pos{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;font-weight:700;font-size:12px;background:rgba(255,255,255,.06)}
+tr.lead .pos{background:var(--a1)}
+.form{display:flex;gap:3px;justify-content:center}
+.form i{width:8px;height:8px;border-radius:50%}
+.fW{background:var(--win)} .fD{background:var(--draw)} .fL{background:var(--loss)}
+
+/* chips & segmented */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:600;white-space:nowrap}
+.chip.on{background:var(--a1);border-color:transparent;color:#fff}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:4px}
+.seg button{padding:10px 4px;border-radius:10px;font-weight:700;font-size:13px;color:var(--mut)}
+.seg button.on{background:var(--card2);color:var(--txt)}
+
+
+/* list items */
+.li{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--card);border:1px solid var(--line);margin:8px 0;cursor:pointer}
+.li .nm{font-weight:700}
+.trophy{display:inline-flex;align-items:center;gap:4px;font-weight:600;color:#f0c75e;font-size:14px}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:10px 4px;text-align:center}
+.stat b{display:block;font-size:20px;font-weight:700}
+.stat span{font-size:11px;color:var(--mut)}
+.h2hbar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.06);margin:10px 0}
+.h2hbar i{display:block;height:100%}
+
+/* bottom nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line)}
+.nav .in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;font-size:11px;font-weight:500;color:var(--mut)}
+.nav button.on{color:var(--txt)}
+.nav button.on svg{color:var(--a1)}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);animation:fade .2s}
+.sheet{width:100%;max-width:480px;max-height:92vh;overflow:auto;background:var(--bg2);border:1px solid var(--line);border-bottom:0;border-radius:26px 26px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));animation:up .25s ease}
+.grab{width:42px;height:5px;border-radius:3px;background:rgba(255,255,255,.18);margin:4px auto 14px}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@keyframes fade{from{opacity:0}}
+.field{display:block;margin:12px 0}
+.field label{display:block;font-size:13px;color:var(--mut);margin-bottom:6px;font-weight:500}
+.inp{width:100%;height:50px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);padding:0 14px;font-size:16px;outline:none}
+.inp:focus{border-color:var(--a2);box-shadow:0 0 0 3px color-mix(in srgb,var(--a2) 25%,transparent)}
+.stepper{display:flex;flex-direction:column;align-items:center;gap:8px}
+.stepper .num{font-weight:700;font-size:56px;line-height:1;width:90px;text-align:center;background:transparent;border:0;outline:none}
+.stepper .b{width:48px;height:40px;border-radius:12px;background:var(--card2);border:1px solid var(--line);font-size:22px;font-weight:700}
+
+/* toast */
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%);z-index:60;max-width:440px;width:calc(100% - 28px);
+  background:var(--bg2);border:1px solid color-mix(in srgb,var(--a2) 50%,transparent);border-radius:16px;padding:12px 14px;box-shadow:var(--glow),0 10px 30px rgba(0,0,0,.5);animation:drop .3s ease}
+@keyframes drop{from{transform:translate(-50%,-20px);opacity:0}}
+
+/* login */
+.login{min-height:100vh;display:flex;flex-direction:column;padding:calc(30px + env(safe-area-inset-top)) 18px 30px;max-width:480px;margin:0 auto}
+.ugrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.ucard{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border-radius:18px;background:var(--card);border:1px solid var(--line);position:relative}
+.ucard .nm{font-weight:700;font-size:14px}
+.ucard .tag{position:absolute;top:8px;right:8px;width:6px;height:6px;border-radius:50%;background:var(--a1)}
+.ucard .new{font-size:10px;color:var(--a3);font-weight:700;letter-spacing:.06em}
+.bigtitle{font-size:34px;font-weight:700;line-height:1.05;margin:6px 0 4px}
+.grad-t{color:var(--a1)}
+.champ{border:1px solid rgba(240,199,94,.35)}
+.champ .h{color:#f0c75e}
+.err{color:var(--loss);font-size:13px;min-height:18px;margin-top:6px}
+.empty{text-align:center;padding:30px 10px}
+.empty .ic{font-size:44px;margin-bottom:8px}
+.sync{font-size:11px;display:inline-flex;align-items:center;gap:5px}
+.sync i{width:6px;height:6px;border-radius:50%;background:var(--mut)}
+.sync.on i{background:var(--win);box-shadow:0 0 6px var(--win)}
+.sync.off i{background:var(--loss)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script>
+/* =========================================================
+   CONFIG — paste your Firebase Realtime Database URL here so
+   every phone shares the same data (see README.md).
+   Leave empty = data stays on this device only.
+   ========================================================= */
+const CONFIG = {
+  firebaseURL: "https://fridaytournament-aa12f-default-rtdb.europe-west1.firebasedatabase.app"
+};
+
+const SEED_USERS = ["Mohamed","Hamid","Chellali","Yacine","Islam","Hicham","Redouane","Imad","Ghani"];
+const ADMIN_SEED = "Mohamed";
+
+/* ================= tiny helpers ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = (p="x") => p + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const slug = s => s.toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g,"") || "user";
+const fmtDate = t => t ? new Date(t).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}) : "";
+const ago = t => { const s=(Date.now()-t)/1000; if(s<60) return "just now"; if(s<3600) return Math.floor(s/60)+"m ago"; if(s<86400) return Math.floor(s/3600)+"h ago"; return Math.floor(s/86400)+"d ago"; };
+
+/* SHA-256 (pure JS so it behaves the same on every device, even over plain http) */
+function sha256(ascii){
+  function rr(v,a){return (v>>>a)|(v<<(32-a));}
+  var mp=Math.pow,mw=mp(2,32),i,j,res="",words=[],bl=ascii.length*8;
+  var hash=[],k=[],pc=0,comp={};
+  for(var c=2;pc<64;c++){ if(!comp[c]){ for(i=0;i<313;i+=c) comp[i]=c; hash[pc]=(mp(c,.5)*mw)|0; k[pc++]=(mp(c,1/3)*mw)|0; } }
+  ascii+="\x80"; while(ascii.length%64-56) ascii+="\x00";
+  for(i=0;i<ascii.length;i++){ j=ascii.charCodeAt(i); words[i>>2]|=j<<((3-i)%4)*8; }
+  words[words.length]=((bl/mw)|0); words[words.length]=bl;
+  for(j=0;j<words.length;){
+    var w=words.slice(j,j+=16),old=hash; hash=hash.slice(0,8);
+    for(i=0;i<64;i++){
+      var w15=w[i-15],w2=w[i-2],a=hash[0],e=hash[4];
+      var t1=hash[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]+(w[i]=(i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+      var t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash=[(t1+t2)|0].concat(hash); hash[4]=(hash[4]+t1)|0;
+    }
+    for(i=0;i<8;i++) hash[i]=(hash[i]+old[i])|0;
+  }
+  for(i=0;i<8;i++) for(j=3;j+1;j--){ var b=(hash[i]>>(j*8))&255; res+=((b<16)?0:"")+b.toString(16); }
+  return res;
+}
+const hashPw = (userId,pw) => sha256(unescape(encodeURIComponent("fridayleague|"+userId+"|"+pw)));
+
+const COLORS = [["#2c50ff","#8a2cff"],["#ff2d6f","#8a1cff"],["#00b7ff","#2c50ff"],["#ff7a18","#ff2d55"],["#13d88a","#0a8bd6"],["#a13dff","#ff3dbb"],["#ffb800","#ff4d00"],["#00e0c6","#6b3dff"],["#ff4040","#7a0019"],["#5b7cff","#00d4ff"]];
+function avColor(id){ let h=0; for(const c of String(id)) h=(h*31+c.charCodeAt(0))>>>0; const [a,b]=COLORS[h%COLORS.length]; return a; }
+function initials(n){ return esc((n||"?").trim().slice(0,2).toUpperCase()); }
+function av(u, size=""){ if(!u) return `<div class="av ${size}" style="background:#333">?</div>`; return `<div class="av ${size}" style="background:${avColor(u.id)}">${initials(u.name)}</div>`; }
+
+const ICON = {
+  home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
+  table:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="4" cy="6" r=".5"/></svg>',
+  ball:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m12 7 4 3-1.5 4.5h-5L8 10z"/><path d="M12 3v4M16 10l4.5-1.5M14.5 14.5 17 19M9.5 14.5 7 19M8 10 3.5 8.5"/></svg>',
+  trophy:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>',
+  users:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/></svg>',
+  bell:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
+  back:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6"/></svg>',
+  plus:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  star:'<svg viewBox="0 0 342 267.31" width="70%" height="70%" aria-label="Friday League"><path fill="#ed1c24" d="M186.85,267.31l-61.95-.05c-7.33,0-12.26-7.81-10.47-14.4l25.09-56.9,20.99.03-23.44,53.31,41.2.05,62.72-142.51,62.26-.04,15.56-35.39h-186.52s-15.52,35.39-15.52,35.39l83.01.02-31.45,71.54-83.06-.03-28.08,63.69c-1.37,2.43-3.66,3.78-6.26,4.19-4.68.4-8.28-1.57-11.01-5.19L1.85,190.65c-2.53-3.35-2.19-7.16-.6-10.77L78,5.6C79.58,2.01,82.25,0,86.2,0l38.21.04h103.08c4.18,0,7.41.57,10.22,3.81,1.88,2.16,4.41,6.35,2.92,9.82l-9.54,22.18-20.95-.03,7.64-17.77h-124.24S19.54,186.16,19.54,186.16l26.06,34.47,26.55-60.35h83.1s15.52-35.41,15.52-35.41l-83-.02,31.39-71.4,208.69.05c4.41-.43,7.73.68,10.46,3.56,2.2,2.32,4.82,6.67,3.19,10.39l-22.56,51.48c-1.23,3.38-3.99,5.92-7.81,5.92h-56.99s-60.52,137.43-60.52,137.43c-1.13,2.56-3.52,5.02-6.77,5.02Z"/></svg>',
+};
+
+/* ================= DATA LAYER =================
+   One tree: { users:{}, tournaments:{}, notifs:{} }
+   - Firebase mode: live sync via REST streaming (EventSource)
+   - Local mode: localStorage                                    */
+const LS_KEY = "fridayleague_db_v1";
+let DB = {};
+let ready = false;
+let syncState = "local";
+const REMOTE = (CONFIG.firebaseURL || localStorage.getItem("fl_firebase") || "").replace(/\/+$/,"");
+
+function applyPath(path, val){
+  const parts = path.split("/").filter(Boolean);
+  if(!parts.length){ DB = (val && typeof val==="object") ? val : {}; return; }
+  let o = DB;
+  for(let i=0;i<parts.length-1;i++){
+    if(typeof o[parts[i]] !== "object" || o[parts[i]] === null) o[parts[i]] = {};
+    o = o[parts[i]];
+  }
+  const last = parts[parts.length-1];
+  if(val === null || val === undefined) delete o[last]; else o[last] = val;
+}
+function saveLocal(){ if(!REMOTE) localStorage.setItem(LS_KEY, JSON.stringify(DB)); }
+
+/* multi-path update: {"tournaments/t1/status":"finished", ...} */
+async function dbUpdate(map){
+  for(const [p,v] of Object.entries(map)) applyPath(p, clone(v));
+  saveLocal(); render();
+  if(REMOTE){
+    try{
+      const r = await fetch(REMOTE + "/.json", {method:"PATCH", body: JSON.stringify(map)});
+      if(!r.ok) throw new Error(r.status);
+    }catch(e){ toast("⚠️ Sync failed — check your connection"); }
+  }
+}
+const clone = v => v===undefined ? null : JSON.parse(JSON.stringify(v));
+
+function startData(){
+  if(REMOTE){
+    syncState = "connecting";
+    const es = new EventSource(REMOTE + "/.json");
+    es.addEventListener("put", e => {
+      const {path, data} = JSON.parse(e.data);
+      applyPath(path, data);
+      syncState = "on";
+      if(!ready){ ready = true; afterReady(); }
+      onData();
+    });
+    es.addEventListener("patch", e => {
+      const {path, data} = JSON.parse(e.data);
+      for(const [k,v] of Object.entries(data||{})) applyPath((path==="/"?"":path)+"/"+k, v);
+      onData();
+    });
+    es.onerror = () => { syncState = "off"; renderSyncDot(); };
+    es.onopen = () => { syncState = "on"; renderSyncDot(); };
+    setTimeout(()=>{ if(!ready){ toast("Can't reach the database. Check the Firebase URL."); } }, 8000);
+  } else {
+    try{ DB = JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch(e){ DB = {}; }
+    ready = true; afterReady(); render();
+    window.addEventListener("storage", e => { if(e.key===LS_KEY){ try{ DB = JSON.parse(e.newValue)||{}; }catch(_){} onData(); } });
+  }
+}
+function afterReady(){
+  if(!DB.users || !Object.keys(DB.users).length){
+    const map = {};
+    SEED_USERS.forEach((n,i) => { const id = "u_"+slug(n); map["users/"+id] = {id, name:n, isAdmin: n===ADMIN_SEED, order:i, createdAt:Date.now()}; });
+    dbUpdate(map);
+  }
+}
+
+/* ================= DOMAIN ================= */
+const users = () => Object.values(DB.users||{}).sort((a,b)=>(a.order??0)-(b.order??0));
+const U = id => (DB.users||{})[id];
+const tournaments = () => Object.values(DB.tournaments||{}).sort((a,b)=>b.createdAt-a.createdAt);
+const matchesOf = t => Object.values(t.matches||{}).sort((a,b)=>a.round-b.round || a.n-b.n);
+const playersOf = t => (Array.isArray(t.players)?t.players:Object.values(t.players||{}));
+const activeTs = () => tournaments().filter(t=>t.status==="active");
+
+/* participants: a user (solo) or a team of 2 (duo) */
+const isDuo = t => t.mode==="duo";
+function members(t,pid){ if(!isDuo(t)) return [pid]; const tm=(t.teams||{})[pid]; return tm ? (Array.isArray(tm.members)?tm.members:Object.values(tm.members||{})) : []; }
+function pName(t,pid){ return isDuo(t) ? members(t,pid).map(id=>U(id)?.name||"?").join(" & ") : (U(pid)?.name||"?"); }
+function pAv(t,pid,size=""){
+  if(!isDuo(t)) return av(U(pid),size);
+  const [a,b]=members(t,pid); return `<div class="duo ${size}">${av(U(a),size)}${av(U(b),size)}</div>`;
+}
+const tUsers = t => isDuo(t) ? playersOf(t).flatMap(p=>members(t,p)) : playersOf(t);
+const sideHas = (t,pid,u) => members(t,pid).includes(u);
+function pairUp(ids){ const s=shuffle(ids), out=[]; for(let i=0;i+1<s.length;i+=2) out.push([s[i],s[i+1]]); return out; }
+
+function shuffle(a){ a=[...a]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+/* round robin (circle method) */
+function schedule(ids, cycles){
+  let p = shuffle(ids); if(p.length%2) p.push(null);
+  const n = p.length, base = [];
+  for(let r=0;r<n-1;r++){
+    const pairs=[];
+    for(let i=0;i<n/2;i++){
+      const a=p[i], b=p[n-1-i]; if(!a||!b) continue;
+      const flip = i===0 ? r%2===1 : i%2===1;
+      pairs.push(flip?[b,a]:[a,b]);
+    }
+    base.push(pairs);
+    p = [p[0], p[n-1], ...p.slice(1,n-1)];
+  }
+  const matches = {}; let n2=0;
+  for(let c=0;c<cycles;c++){
+    base.forEach((pairs,r)=>{
+      pairs.forEach(([h,a])=>{
+        const swap = c%2===1;
+        const id = "m"+(n2++).toString().padStart(3,"0");
+        matches[id] = {id, round: c*(n-1)+r+1, n:n2, home: swap?a:h, away: swap?h:a, played:false};
+      });
+    });
+  }
+  return {matches, rounds: cycles*(n-1)};
+}
+
+function standings(t){
+  const ps = playersOf(t), rows = {};
+  ps.forEach(id => rows[id] = {id, p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,rem:0,form:[]});
+  const ms = matchesOf(t);
+  for(const m of ms){
+    const H=rows[m.home], A=rows[m.away]; if(!H||!A) continue;
+    if(!m.played){ H.rem++; A.rem++; continue; }
+    H.p++;A.p++; H.gf+=m.hs;H.ga+=m.as;A.gf+=m.as;A.ga+=m.hs;
+    if(m.hs>m.as){H.w++;A.l++;H.pts+=3;H.form.push("W");A.form.push("L");}
+    else if(m.hs<m.as){A.w++;H.l++;A.pts+=3;A.form.push("W");H.form.push("L");}
+    else{H.d++;A.d++;H.pts++;A.pts++;H.form.push("D");A.form.push("D");}
+  }
+  let list = Object.values(rows); list.forEach(r=>r.gd=r.gf-r.ga);
+  // group by points, then apply head-to-head (direct results) inside each tied group
+  list.sort((a,b)=>b.pts-a.pts);
+  const out=[];
+  for(let i=0;i<list.length;){
+    let j=i; while(j<list.length && list[j].pts===list[i].pts) j++;
+    const grp = list.slice(i,j);
+    if(grp.length>1){
+      const ids = new Set(grp.map(r=>r.id)), mini={};
+      grp.forEach(r=>mini[r.id]={pts:0,gd:0,gf:0});
+      ms.filter(m=>m.played && ids.has(m.home) && ids.has(m.away)).forEach(m=>{
+        const h=mini[m.home],a=mini[m.away];
+        h.gf+=m.hs;a.gf+=m.as;h.gd+=m.hs-m.as;a.gd+=m.as-m.hs;
+        if(m.hs>m.as)h.pts+=3;else if(m.hs<m.as)a.pts+=3;else{h.pts++;a.pts++;}
+      });
+      grp.forEach(r=>r.h2h=mini[r.id]);
+      grp.sort((a,b)=> b.h2h.pts-a.h2h.pts || b.h2h.gd-a.h2h.gd || b.h2h.gf-a.h2h.gf || b.gd-a.gd || b.gf-a.gf || pName(t,a.id).localeCompare(pName(t,b.id)));
+    }
+    out.push(...grp); i=j;
+  }
+  return out;
+}
+/* leader can't be caught even if he loses every remaining match */
+function isClinched(rows){
+  if(rows.length<2) return false;
+  const L = rows[0];
+  return rows.slice(1).every(r => r.pts + 3*r.rem < L.pts);
+}
+function allPlayed(t){ return matchesOf(t).every(m=>m.played); }
+
+function canEdit(t,m){ const me=ME(); if(!me) return false; if(me.isAdmin) return true; if(t.status!=="active") return false; return sideHas(t,m.home,me.id) || sideHas(t,m.away,me.id); }
+
+function notifMap(to, title, body, extra={}){
+  const id = uid("n");
+  return {["notifs/"+id]: {id, to, title, body, at:Date.now(), from: ME()?.id || null, ...extra}};
+}
+
+/* after any result: detect early champion / completion */
+function postResult(tid, m){
+  const t = DB.tournaments[tid]; if(!t) return;
+  const rows = standings(t), map = {}, ps = tUsers(t);
+  const H=pName(t,m.home), A=pName(t,m.away);
+  Object.assign(map, notifMap(ps, "⚽ Result · "+t.name, `${H} ${m.hs} – ${m.as} ${A}`));
+  if(t.status==="active"){
+    if(allPlayed(t)){
+      map[`tournaments/${tid}/status`]="finished";
+      map[`tournaments/${tid}/winner`]=rows[0].id;
+      map[`tournaments/${tid}/finishedAt`]=Date.now();
+      if(!t.clinchedAt) map[`tournaments/${tid}/clinchedAt`]=Date.now();
+      Object.assign(map, notifMap("all", "🏆 "+pName(t,rows[0].id)+" win"+(isDuo(t)?"":"s")+" "+t.name+"!", "All matches played. Final table is in."));
+    } else if(!t.winner && isClinched(rows)){
+      map[`tournaments/${tid}/winner`]=rows[0].id;
+      map[`tournaments/${tid}/clinchedAt`]=Date.now();
+      Object.assign(map, notifMap("all", "👑 "+pName(t,rows[0].id)+(isDuo(t)?" are":" is")+" the champion!", `Mathematically unreachable in ${t.name} — even losing every remaining match.`));
+    } else if(t.winner && !isClinched(rows)){
+      map[`tournaments/${tid}/winner`]=null; map[`tournaments/${tid}/clinchedAt`]=null; map[`tournaments/${tid}/clinchAck`]=null;
+    }
+  }
+  dbUpdate(map);
+}
+
+/* ================= SESSION / UI STATE ================= */
+const SESSION_START = Date.now();
+let me_id = localStorage.getItem("fl_me");
+const ME = () => me_id ? U(me_id) : null;
+const ui = { view:"home", tid:null, mfilter:"all", profile:null, login:{step:"pick", user:null} };
+const shownNotifs = new Set();
+
+function myNotifs(){
+  const me=ME(); if(!me) return [];
+  return Object.values(DB.notifs||{}).filter(n => n.to==="all" || (Array.isArray(n.to)?n.to:Object.values(n.to||{})).includes(me.id)).sort((a,b)=>b.at-a.at);
+}
+function unread(){ const me=ME(); return myNotifs().filter(n=>n.from!==me.id && !(n.read&&n.read[me.id])); }
+
+function onData(){
+  render();
+  const me=ME(); if(!me) return;
+  for(const n of unread()){
+    if(shownNotifs.has(n.id)) continue; shownNotifs.add(n.id);
+    if(n.at > SESSION_START && n.from !== me.id){
+      toast(`<b>${esc(n.title)}</b><div class="small mut" style="margin-top:3px">${esc(n.body)}</div>`, true);
+      if("Notification" in window && Notification.permission==="granted"){
+        try{ new Notification(n.title,{body:n.body}); }catch(e){}
+      }
+      if(navigator.vibrate) navigator.vibrate(80);
+    }
+  }
+}
+
+let toastTimer;
+function toast(html, raw){ const el=$("#toast"); el.innerHTML=`<div class="toast">${raw?html:esc(html)}</div>`; clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.innerHTML="",4200); }
+
+/* ================= RENDER ================= */
+function render(){
+  if(!ready){ $("#app").innerHTML = `<div class="login" style="justify-content:center;align-items:center"><div class="logo" style="width:64px;height:64px">${ICON.star}</div><p class="mut">Loading league…</p></div>`; return; }
+  const me = ME();
+  if(!me){ if(document.activeElement && document.activeElement.closest && document.activeElement.closest('#loginform')) return; renderLogin(); return; }
+  document.documentElement.dataset.theme = localStorage.getItem("fl_theme") || "ucl";
+  let body = "";
+  if(ui.profile) body = viewProfile(ui.profile);
+  else body = ({home:viewHome, table:viewTable, matches:viewMatches, history:viewHistory, players:viewPlayers}[ui.view]||viewHome)();
+  const un = unread().length;
+  $("#app").innerHTML = `
+  <div class="wrap">
+    <div class="top row between">
+      <div class="brand">
+        ${ui.profile ? `<button class="iconbtn" data-a="back">${ICON.back}</button>` : `<div class="logo">${ICON.star}</div>`}
+        <div><div class="t h">Friday League</div><div class="s"><span id="syncdot"></span></div></div>
+      </div>
+      <div class="row" style="gap:8px">
+        <button class="iconbtn" data-a="notifs">${ICON.bell}${un?`<span class="badge">${un}</span>`:""}</button>
+        <button data-a="profile" data-id="${me.id}">${av(me)}</button>
+      </div>
+    </div>
+    ${body}
+  </div>
+  <nav class="nav"><div class="in">
+    ${[["home","Home"],["table","Table"],["matches","Matches"],["history","History"],["players","Players"]].map(([v,l])=>
+      `<button class="${!ui.profile&&ui.view===v?"on":""}" data-a="nav" data-v="${v}">${ICON[{home:"home",table:"table",matches:"ball",history:"trophy",players:"users"}[v]]}${l}</button>`).join("")}
+  </div></nav>`;
+  renderSyncDot();
+}
+function renderSyncDot(){
+  const el=$("#syncdot"); if(!el) return;
+  const map={local:["","This device"],connecting:["","Connecting"],on:["on","Live"],off:["off","Offline"]};
+  const [c,l]=map[syncState]; el.innerHTML=`<span class="sync ${c}"><i></i>${l}</span>`;
+}
+
+/* ---------- LOGIN ---------- */
+function renderLogin(){
+  document.documentElement.dataset.theme = localStorage.getItem("fl_theme") || "ucl";
+  const sel = ui.login.user || "";
+  const u = sel ? U(sel) : null, first = u && !u.pass;
+  $("#app").innerHTML = `
+  <div class="login" style="justify-content:center">
+    <div class="logo" style="width:76px;height:76px;border-radius:20px">${ICON.star}</div>
+    <div class="bigtitle h" style="margin:18px 0 22px">Friday League</div>
+    <form id="loginform" autocomplete="off">
+      <div class="field"><label>User</label>
+        <select class="inp" id="usel">
+          <option value="" ${!sel?"selected":""} disabled>Select user</option>
+          ${users().map(x=>`<option value="${x.id}" ${x.id===sel?"selected":""}>${esc(x.name)}</option>`).join("")}
+        </select></div>
+      <div class="field"><label>${first?"New password":"Password"}</label><input class="inp" type="password" id="pw1" ${first?'autocomplete="new-password"':'autocomplete="current-password"'}></div>
+      ${first?`<div class="field"><label>Confirm password</label><input class="inp" type="password" id="pw2" autocomplete="new-password"></div>`:""}
+      <div class="err" id="lerr"></div>
+      <button class="btn" type="submit" style="margin-top:8px">${first?"Create password":"Log in"}</button>
+    </form>
+  </div>`;
+  $("#usel").onchange = e => { ui.login={step:"pick", user:e.target.value}; renderLogin(); setTimeout(()=>$("#pw1")?.focus(),0); };
+  $("#loginform").onsubmit = e => {
+    e.preventDefault();
+    const err=$("#lerr");
+    if(!u) return err.textContent="Select a user.";
+    const p1=$("#pw1").value;
+    if(first){
+      const p2=$("#pw2").value;
+      if(p1.length<4) return err.textContent="At least 4 characters.";
+      if(p1!==p2) return err.textContent="Passwords don't match.";
+      dbUpdate({[`users/${u.id}/pass`]: hashPw(u.id,p1)});
+      login(u.id);
+    } else {
+      if(hashPw(u.id,p1)!==u.pass) return err.textContent="Wrong password.";
+      login(u.id);
+    }
+  };
+}
+function login(id){
+  me_id=id; localStorage.setItem("fl_me",id); ui.view="home"; ui.profile=null; ui.login={step:"pick"};
+  myNotifs().forEach(n=>shownNotifs.add(n.id));
+  render();
+}
+
+/* ---------- shared bits ---------- */
+function matchRow(t,m,opts={}){
+  const me=ME(), mine = sideHas(t,m.home,me.id)||sideHas(t,m.away,me.id);
+  const edit = canEdit(t,m);
+  let sc;
+  if(m.played){ sc=`<div class="sc">${m.hs}<span class="mut" style="margin:0 3px">-</span>${m.as}</div>`; }
+  else sc=`<div class="sc pending">${edit?"+ Score":"vs"}</div>`;
+  const hw = m.played && m.hs>m.as, aw = m.played && m.as>m.hs;
+  return `<div class="mrow ${mine?"mine":""} ${edit?"tap":""}" ${edit?`data-a="score" data-t="${t.id}" data-m="${m.id}"`:""}>
+    <div class="side ${m.played?(hw?"w":aw?"l":""):""}">${pAv(t,m.home,"sm")}<span>${esc(pName(t,m.home))}</span></div>
+    ${sc}
+    <div class="side r ${m.played?(aw?"w":hw?"l":""):""}"><span>${esc(pName(t,m.away))}</span>${pAv(t,m.away,"sm")}</div>
+  </div>`;
+}
+function tChips(list, sel){
+  if(list.length<=1) return "";
+  return `<div class="chips">${list.map(t=>`<button class="chip ${t.id===sel?"on":""}" data-a="seltour" data-id="${t.id}">${t.status==="active"?"● ":""}${esc(t.name)}</button>`).join("")}</div>`;
+}
+function currentT(){
+  const all = tournaments(); if(!all.length) return null;
+  if(ui.tid && DB.tournaments[ui.tid]) return DB.tournaments[ui.tid];
+  return activeTs()[0] || all[0];
+}
+function champBanner(t){
+  if(!t.winner) return "";
+  const me=ME(), rows=standings(t);
+  const left = matchesOf(t).filter(m=>!m.played).length;
+  const finished = t.status==="finished";
+  return `<div class="card champ">
+    <div class="row">
+      ${pAv(t,t.winner,"lg")}
+      <div class="grow">
+        <div class="pill gold">👑 Champion</div>
+        <div class="h it" style="font-size:22px;font-weight:700;margin-top:6px">${esc(pName(t,t.winner))}</div>
+        
+      </div>
+    </div>
+    ${!finished && me.isAdmin && !t.clinchAck ? `
+      <div class="row" style="margin-top:14px">
+        <button class="btn sm grow" data-a="finish" data-id="${t.id}" style="width:100%">Finish now</button>
+        <button class="btn sm sec2 grow" data-a="ackclinch" data-id="${t.id}" style="width:100%">Keep playing</button>
+      </div>` : !finished && me.isAdmin ? `<button class="btn sm ghost" style="margin-top:12px;width:100%" data-a="finish" data-id="${t.id}">Finish tournament now</button>`:""}
+  </div>`;
+}
+
+/* ---------- HOME ---------- */
+function viewHome(){
+  const me=ME(), act=activeTs();
+  let h = `<div style="margin:16px 2px 0"><div class="h" style="font-size:26px;font-weight:700">Home</div></div>`;
+  if(!act.length){
+    h += `<div class="card empty"><div class="ic">🏟️</div><div class="mut">No active tournament</div>
+      ${me.isAdmin?`<button class="btn" style="margin-top:16px" data-a="newtour">${ICON.plus} New tournament</button>`:""}</div>`;
+    const last = tournaments().find(t=>t.status==="finished");
+    if(last){ h += `<div class="sec h">Last champion</div>` + champBanner(last); }
+    return h;
+  }
+  for(const t of act){
+    const ms=matchesOf(t), played=ms.filter(m=>m.played).length, rows=standings(t);
+    const myNext = ms.find(m=>!m.played && (sideHas(t,m.home,me.id)||sideHas(t,m.away,me.id)));
+    const nextUp = ms.find(m=>!m.played);
+    const inT = tUsers(t).includes(me.id);
+    h += `<div class="card hero">
+      <div class="row between"><span class="pill live"><span class="dot"></span>Live</span></div>
+      <div class="h it" style="font-size:26px;font-weight:700;margin-top:10px">${esc(t.name)}${isDuo(t)?' <span class="pill">Duo</span>':""}</div>
+      <div class="row between small mut" style="margin:8px 0 6px"><span>${played}/${ms.length}</span></div>
+      <div class="progress"><i style="width:${played/ms.length*100}%"></i></div>
+    </div>`;
+    h += champBanner(t);
+    const focus = myNext || (!inT && nextUp) || null;
+    if(focus){
+      const edit=canEdit(t,focus);
+      h += `<div class="card">
+        <div class="row between"><span class="sec h" style="margin:0">${myNext?"Your next match":"Next up"}</span><span class="pill">Matchday ${focus.round}</span></div>
+        <div class="vs">
+          <div class="p">${pAv(t,focus.home,"lg")}<div class="n">${esc(pName(t,focus.home))}</div></div>
+          <div class="mid grad-t">VS</div>
+          <div class="p">${pAv(t,focus.away,"lg")}<div class="n">${esc(pName(t,focus.away))}</div></div>
+        </div>
+        ${edit?`<button class="btn" data-a="score" data-t="${t.id}" data-m="${focus.id}">Enter final score</button>`:""}
+      </div>`;
+    } else if(inT){
+      h += ``;
+    }
+    if(nextUp && myNext && nextUp.id!==myNext.id){
+      h += `<div class="sec h">Next up</div>` + matchRow(t,nextUp);
+    }
+    // mini table
+    h += `<div class="sec h row between"><span>Table</span><button class="small" style="color:var(--a1)" data-a="gotable" data-id="${t.id}">View all</button></div>
+    <div class="card" style="padding:6px 12px">${tableHTML(t, rows.slice(0,4), false)}</div>`;
+    const recent = ms.filter(m=>m.played).sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,3);
+    if(recent.length) h += `<div class="sec h">Results</div>` + recent.map(m=>matchRow(t,m)).join("");
+  }
+  if(me.isAdmin) h += `<button class="btn sec2" style="margin-top:18px" data-a="newtour">${ICON.plus} New tournament</button>`;
+  return h;
+}
+
+/* ---------- TABLE ---------- */
+function tableHTML(t, rows, full=true){
+  const me=ME(), form = full && !isDuo(t);
+  return `<table>
+    <tr><th>#</th><th class="pl">${isDuo(t)?"Team":"Player"}</th><th>P</th>${full?"<th>W</th><th>D</th><th>L</th>":""}<th>GD</th>${form?"<th>Form</th>":""}<th>Pts</th></tr>
+    ${rows.map((r,i)=>{ const champ = t.winner===r.id, mem=members(t,r.id);
+      return `<tr class="${i===0?"lead":""} ${mem.includes(me.id)?"me":""}" data-a="profile" data-id="${mem.includes(me.id)?me.id:mem[0]}" style="cursor:pointer">
+        <td><span class="pos">${i+1}</span></td>
+        <td class="pl"><div class="row" style="gap:8px">${pAv(t,r.id,"sm")}<b style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:${full?(isDuo(t)?110:80):150}px">${esc(pName(t,r.id))}</b>${champ?"👑":""}</div></td>
+        <td>${r.p}</td>${full?`<td>${r.w}</td><td>${r.d}</td><td>${r.l}</td>`:""}
+        <td>${r.gd>0?"+":""}${r.gd}</td>
+        ${form?`<td><div class="form">${r.form.slice(-5).map(f=>`<i class="f${f}"></i>`).join("")||'<span class="mut">–</span>'}</div></td>`:""}
+        <td class="pts">${r.pts}</td></tr>`; }).join("")}
+  </table>`;
+}
+function viewTable(){
+  const t=currentT();
+  if(!t) return `<div class="card empty mut" style="margin-top:20px">No tournaments</div>`;
+  const rows=standings(t), me=ME();
+  const maxRow = rows.length>1 ? rows.slice(1).reduce((m,r)=>Math.max(m,r.pts+3*r.rem),0) : 0;
+  const gap = rows.length ? rows[0].pts - maxRow : 0;
+  return `${tChips(tournaments(), t.id)}
+    <div class="row between" style="margin:10px 2px 0">
+      <div><div class="h it" style="font-size:22px;font-weight:700">${esc(t.name)}</div>
+      </div>
+      ${me.isAdmin?`<button class="iconbtn" data-a="tmenu" data-id="${t.id}" title="Options">⋯</button>`:""}
+    </div>
+    ${champBanner(t)}
+    <div class="card" style="padding:8px 10px">${tableHTML(t,rows,true)}</div>
+`;
+}
+
+/* ---------- MATCHES ---------- */
+function viewMatches(){
+  const t=currentT();
+  if(!t) return `<div class="card empty mut" style="margin-top:20px">No matches</div>`;
+  const me=ME();
+  let ms=matchesOf(t);
+  if(ui.mfilter==="mine") ms=ms.filter(m=>sideHas(t,m.home,me.id)||sideHas(t,m.away,me.id));
+  if(ui.mfilter==="left") ms=ms.filter(m=>!m.played);
+  if(ui.mfilter==="done") ms=ms.filter(m=>m.played);
+  const byR={}; ms.forEach(m=>(byR[m.round]=byR[m.round]||[]).push(m));
+  return `${tChips(tournaments(), t.id)}
+    <div class="h it" style="font-size:22px;font-weight:700;margin:10px 2px">${esc(t.name)}</div>
+    <div class="seg" style="margin-bottom:6px">${[["all","All"],["mine","Mine"],["left","To play"],["done","Played"]].map(([k,l])=>`<button class="${ui.mfilter===k?"on":""}" data-a="mfilter" data-v="${k}">${l}</button>`).join("")}</div>
+    ${Object.keys(byR).length? Object.entries(byR).map(([r,list])=>`<div class="sec h">Matchday ${r}</div>${list.map(m=>matchRow(t,m)).join("")}`).join("") : `<div class="card empty"><div class="mut">Nothing here.</div></div>`}`;
+}
+
+/* ---------- HISTORY ---------- */
+function titlesOf(id){ return tournaments().filter(t=>t.status==="finished"&&t.winner&&members(t,t.winner).includes(id)).length; }
+function viewHistory(){
+  const all=tournaments();
+  const hof = users().map(u=>({u,n:titlesOf(u.id)})).filter(x=>x.n).sort((a,b)=>b.n-a.n);
+  return `<div class="h it" style="font-size:26px;font-weight:700;margin:14px 2px 0">History</div>
+    <div class="sec h">Hall of fame</div>
+    ${hof.length? `<div class="card" style="padding:8px 12px">${hof.map((x,i)=>`<div class="row" style="padding:8px 0;${i?"border-top:1px solid var(--line)":""}" data-a="profile" data-id="${x.u.id}">
+      <span class="pos" style="${i===0?"background:linear-gradient(135deg,#ffd36b,#ff9500);color:#000":""}">${i+1}</span>${av(x.u,"sm")}<b class="grow">${esc(x.u.name)}</b><span class="trophy">🏆 ${x.n}</span></div>`).join("")}</div>`
+      : ``}
+    <div class="sec h">All tournaments</div>
+    ${all.length? all.map(t=>{ const ms=matchesOf(t);
+      return `<div class="li tap" data-a="gotable" data-id="${t.id}">
+        <div class="logo" style="width:44px;height:44px;border-radius:14px;${t.status==="finished"?"":"opacity:.7"}">${t.status==="finished"?"🏆":ICON.ball}</div>
+        <div class="grow"><div class="nm">${esc(t.name)}</div>
+          <div class="small mut">${fmtDate(t.createdAt)}</div></div>
+        ${t.status==="finished"? `<div class="center"><div style="display:flex;justify-content:center">${pAv(t,t.winner,"sm")}</div><div class="small" style="font-weight:700;margin-top:2px;max-width:110px">${esc(t.winner?pName(t,t.winner):"-")}</div></div>` : `<span class="pill live"><span class="dot"></span>Live</span>`}
+      </div>`; }).join("") : `<div class="card empty mut">No tournaments</div>`}`;
+}
+
+/* ---------- PLAYERS ---------- */
+function careerOf(id){
+  const s={p:0,w:0,d:0,l:0,gf:0,ga:0};
+  for(const t of tournaments()) for(const m of matchesOf(t)){
+    if(!m.played) continue; const hh=sideHas(t,m.home,id), aa=sideHas(t,m.away,id); if(!hh&&!aa) continue;
+    const f = hh ? m.hs : m.as, a = hh ? m.as : m.hs;
+    s.p++; s.gf+=f; s.ga+=a; if(f>a)s.w++; else if(f<a)s.l++; else s.d++;
+  }
+  return s;
+}
+function viewPlayers(){
+  const me=ME();
+  return `<div class="row between" style="margin:14px 2px 0"><div class="h it" style="font-size:26px;font-weight:700">Players</div>
+    ${me.isAdmin?`<button class="btn sm" data-a="adduser">${ICON.plus} Add</button>`:""}</div>
+    ${users().map(u=>{ const c=careerOf(u.id), ti=titlesOf(u.id);
+      return `<div class="li tap" data-a="profile" data-id="${u.id}">
+        ${av(u)}
+        <div class="grow"><div class="nm">${esc(u.name)} ${u.isAdmin?'<span class="pill" style="font-size:9px;padding:2px 6px">Admin</span>':""} </div>
+        </div>
+        ${ti?`<span class="trophy">🏆 ${ti}</span>`:""}
+      </div>`; }).join("")}`;
+}
+
+/* ---------- PROFILE / H2H ---------- */
+function viewProfile(id){
+  const u=U(id), me=ME(); if(!u) return `<div class="card">Player not found.</div>`;
+  const c=careerOf(id), ti=titlesOf(id), self=id===me.id;
+  let h = `<div class="center" style="margin-top:18px">
+      <div style="display:inline-block">${av(u,"xl")}</div>
+      <div class="h it" style="font-size:26px;font-weight:700;margin-top:12px;line-height:1.1">${esc(u.name)}</div>
+      <div class="row" style="justify-content:center;margin-top:8px;gap:8px">${u.isAdmin?'<span class="pill">Admin</span>':""}<span class="pill gold">🏆 ${ti} title${ti===1?"":"s"}</span></div>
+    </div>
+    <div class="sec h">Career</div>
+    <div class="stats">
+      <div class="stat"><b>${c.p}</b><span>Played</span></div>
+      <div class="stat"><b style="color:var(--win)">${c.w}</b><span>Won</span></div>
+      <div class="stat"><b>${c.d}</b><span>Drawn</span></div>
+      <div class="stat"><b style="color:var(--loss)">${c.l}</b><span>Lost</span></div>
+      <div class="stat"><b>${c.gf}</b><span>Goals</span></div>
+      <div class="stat"><b>${c.ga}</b><span>Conceded</span></div>
+      <div class="stat"><b>${c.p?Math.round(c.w/c.p*100):0}%</b><span>Win rate</span></div>
+      <div class="stat"><b>${tournaments().filter(t=>tUsers(t).includes(id)).length}</b><span>Tourneys</span></div>
+    </div>`;
+  if(!self){
+    // head to head between me and this player
+    const list=[];
+    for(const t of tournaments()) for(const m of matchesOf(t)) if(m.played && ((sideHas(t,m.home,me.id)&&sideHas(t,m.away,id))||(sideHas(t,m.home,id)&&sideHas(t,m.away,me.id)))) list.push({t,m});
+    list.sort((a,b)=>(b.m.at||0)-(a.m.at||0));
+    let mw=0,d=0,tw=0,mg=0,tg=0;
+    list.forEach(({t,m})=>{ const h=sideHas(t,m.home,me.id), mine=h?m.hs:m.as, their=h?m.as:m.hs; mg+=mine; tg+=their; if(mine>their)mw++; else if(mine<their)tw++; else d++; });
+    const tot=list.length||1, myT=titlesOf(me.id);
+    h += `<div class="sec h">Head to head</div>
+      <div class="card hero">
+        <div class="vs" style="margin:4px 0">
+          <div class="p">${av(me,"lg")}<div class="n">${esc(me.name)}</div></div>
+          <div class="mid score">${mw} – ${tw}</div>
+          <div class="p">${av(u,"lg")}<div class="n">${esc(u.name)}</div></div>
+        </div>
+        
+        <div class="h2hbar"><i style="width:${mw/tot*100}%;background:var(--a1)"></i><i style="width:${d/tot*100}%;background:var(--draw);opacity:.5"></i><i style="width:${tw/tot*100}%;background:var(--a2)"></i></div>
+        <div class="stats" style="grid-template-columns:repeat(3,1fr);margin-top:12px">
+          <div class="stat"><b>${mg} – ${tg}</b><span>Goals</span></div>
+          <div class="stat"><b>${list.length}</b><span>Meetings</span></div>
+          <div class="stat"><b>🏆 ${myT} – ${ti}</b><span>Titles</span></div>
+        </div>
+      </div>
+      ${list.length? `<div class="sec h">Meetings</div>` + list.map(({t,m})=>`${matchRow(t,m)}`).join("") : ``}`;
+    if(me.isAdmin) h += `<div class="sec h">Admin</div>
+      <button class="btn sec2" data-a="resetpw" data-id="${id}">Reset ${esc(u.name)}'s password</button>
+      <button class="btn ghost" style="margin-top:8px" data-a="toggleadmin" data-id="${id}">${u.isAdmin?"Remove admin rights":"Make admin"}</button>`;
+  } else {
+    const theme = localStorage.getItem("fl_theme")||"ucl";
+    const np = "Notification" in window ? Notification.permission : "unsupported";
+    h += `<div class="sec h">Settings</div>
+      <div class="card">
+        
+        <div class="seg"><button class="${theme==="ucl"?"on":""}" data-a="theme" data-v="ucl">Blue</button><button class="${theme==="akira"?"on":""}" data-a="theme" data-v="akira">Red</button></div>
+      </div>
+      <button class="btn sec2" data-a="enablenotif" ${np!=="default"?"disabled style='opacity:.6'":""}>${np==="granted"?"Notifications on":np==="denied"?"Notifications blocked":np==="unsupported"?"Notifications unavailable":"Enable notifications"}</button>
+      <button class="btn sec2" style="margin-top:8px" data-a="changepw">Change password</button>
+      <button class="btn ghost" style="margin-top:8px" data-a="logout">Log out</button>`;
+  }
+  return h;
+}
+
+/* ================= MODALS ================= */
+function openSheet(html){ $("#modal").innerHTML = `<div class="modal" data-a="closebg"><div class="sheet"><div class="grab"></div>${html}</div></div>`; }
+function closeSheet(){ $("#modal").innerHTML=""; }
+
+function sheetScore(tid, mid){
+  const t=DB.tournaments[tid], m=t.matches[mid];
+  let hs = m.played?m.hs:0, as = m.played?m.as:0;
+  openSheet(`
+    <div class="center">
+    <div class="h it" style="font-size:24px;font-weight:700;margin-top:8px">${m.played?"Edit result":"Final score"}</div></div>
+    <div class="vs" style="margin:20px 0">
+      <div class="p">${pAv(t,m.home,"lg")}<div class="n">${esc(pName(t,m.home))}</div>
+        <div class="stepper"><button class="b" data-s="h+">+</button><input class="num" id="hs" inputmode="numeric" value="${hs}"><button class="b" data-s="h-">−</button></div></div>
+      <div class="mid mut" style="font-size:28px">:</div>
+      <div class="p">${pAv(t,m.away,"lg")}<div class="n">${esc(pName(t,m.away))}</div>
+        <div class="stepper"><button class="b" data-s="a+">+</button><input class="num" id="as" inputmode="numeric" value="${as}"><button class="b" data-s="a-">−</button></div></div>
+    </div>
+    
+    <button class="btn" id="savescore">Save result</button>
+    ${m.played && ME().isAdmin?`<button class="btn ghost" style="margin-top:8px" id="clearscore">Clear result</button>`:""}
+  `);
+  const clamp=v=>Math.max(0,Math.min(99,parseInt(v)||0));
+  $("#modal").querySelectorAll("[data-s]").forEach(b=>b.onclick=e=>{
+    e.stopPropagation(); const s=b.dataset.s, el=$(s[0]==="h"?"#hs":"#as"); el.value=clamp(+el.value+(s[1]==="+"?1:-1));
+  });
+  $("#savescore").onclick=()=>{
+    const h=clamp($("#hs").value), a=clamp($("#as").value);
+    const nm={...m, hs:h, as:a, played:true, by:ME().id, at:Date.now()};
+    applyPath(`tournaments/${tid}/matches/${mid}`, nm); // so postResult sees it immediately
+    closeSheet();
+    const map={[`tournaments/${tid}/matches/${mid}`]:nm};
+    dbUpdate(map).then(()=>{});
+    postResult(tid, nm);
+    toast("✅ Result saved");
+  };
+  const cl=$("#clearscore"); if(cl) cl.onclick=()=>{
+    dbUpdate({[`tournaments/${tid}/matches/${mid}`]:{id:m.id,round:m.round,n:m.n,home:m.home,away:m.away,played:false}});
+    const t2=DB.tournaments[tid], rows=standings(t2);
+    if(t2.winner && !isClinched(rows) && t2.status==="active") dbUpdate({[`tournaments/${tid}/winner`]:null,[`tournaments/${tid}/clinchedAt`]:null,[`tournaments/${tid}/clinchAck`]:null});
+    closeSheet();
+  };
+}
+
+function sheetNewTour(){
+  const sel = new Set(users().map(u=>u.id)); let cycles=2, mode="solo", rand=true, teams=[], pick=null;
+  const num = tournaments().length+1;
+  const selIds = () => users().map(u=>u.id).filter(id=>sel.has(id));
+  const reshuffle = () => { teams = pairUp(selIds()); pick=null; };
+  const syncManual = () => { // keep manual teams consistent with selection
+    const ids=selIds(), used=new Set(teams.flat());
+    teams = teams.map(p=>p.filter(id=>sel.has(id))).filter(p=>p.length);
+    ids.filter(id=>!used.has(id)).forEach(id=>{ const open=teams.find(p=>p.length<2); open?open.push(id):teams.push([id]); });
+    const singles=teams.filter(p=>p.length===1); teams=teams.filter(p=>p.length===2);
+    for(let i=0;i<singles.length;i+=2) teams.push(singles[i+1]?[singles[i][0],singles[i+1][0]]:[singles[i][0]]);
+  };
+  const draw=()=>{
+    if(mode==="duo"){ rand ? (teams.flat().length!==sel.size || teams.flat().some(id=>!sel.has(id)) ? reshuffle() : 0) : syncManual(); }
+    const n = mode==="duo" ? Math.floor(sel.size/2) : sel.size, total = n*(n-1)/2*cycles;
+    $("#ntbody").innerHTML = `
+      <div class="field"><label>Mode</label>
+        <div class="seg"><button class="${mode==="solo"?"on":""}" data-mode="solo">Solo</button><button class="${mode==="duo"?"on":""}" data-mode="duo">Duo</button></div></div>
+      <div class="field"><label>Players</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">${users().map(u=>`<button class="chip ${sel.has(u.id)?"on":""}" data-p="${u.id}">${esc(u.name)}</button>`).join("")}</div></div>
+      ${mode==="duo"?`
+      <div class="field"><label>Teams</label>
+        <div class="seg" style="margin-bottom:8px"><button class="${rand?"on":""}" data-rand="1">Random</button><button class="${!rand?"on":""}" data-rand="0">Manual</button></div>
+        ${teams.map((p,i)=>`<div class="team"><span class="mut" style="width:18px">${i+1}</span>${p.map(id=>`<button class="chip ${pick===id?"on":""}" data-sw="${id}">${esc(U(id)?.name)}</button>`).join('<span class="mut">&</span>')}${p.length<2?'<span class="mut small">needs a partner</span>':""}</div>`).join("")}
+        ${rand?`<button class="btn sm sec2" style="width:100%;margin-top:6px" data-reroll="1">Shuffle again</button>`:`<div class="small mut" style="margin-top:6px">Tap two players to swap them</div>`}
+      </div>`:""}
+      <div class="field"><label>Cycles</label>
+        <div class="seg">${[1,2,3].map(v=>`<button class="${cycles===v?"on":""}" data-c="${v}">${v}</button>`).join("")}</div></div>
+      <div class="small mut center" style="margin:14px 0">${total} matches</div>`;
+    const B=$("#ntbody");
+    B.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{ const id=b.dataset.p; sel.has(id)?sel.delete(id):sel.add(id); draw(); });
+    B.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{ cycles=+b.dataset.c; draw(); });
+    B.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{ mode=b.dataset.mode; if(mode==="duo") reshuffle(); draw(); });
+    B.querySelectorAll("[data-rand]").forEach(b=>b.onclick=()=>{ rand=b.dataset.rand==="1"; if(rand) reshuffle(); pick=null; draw(); });
+    B.querySelectorAll("[data-reroll]").forEach(b=>b.onclick=()=>{ reshuffle(); draw(); });
+    B.querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>{
+      const id=b.dataset.sw;
+      if(rand){ rand=false; }
+      if(!pick){ pick=id; }
+      else if(pick===id){ pick=null; }
+      else { const flat=teams.map(p=>[...p]); flat.forEach(p=>p.forEach((x,i)=>{ if(x===pick) p[i]=id; else if(x===id) p[i]=pick; })); teams=flat; pick=null; }
+      draw();
+    });
+  };
+  openSheet(`<div class="h it" style="font-size:26px;font-weight:700">New tournament</div>
+    <div class="field"><label>Name</label><input class="inp" id="tname" value="Friday League #${num}"></div>
+    <div id="ntbody"></div><div class="err" id="nterr"></div>
+    <button class="btn" id="createt">Start</button>`);
+  draw();
+  $("#createt").onclick=()=>{
+    const err=$("#nterr");
+    const name=$("#tname").value.trim()||`Friday League #${num}`;
+    const ids=selIds(), id=uid("t");
+    let t;
+    if(mode==="duo"){
+      if(ids.length%2) return err.textContent="Duo needs an even number of players.";
+      if(ids.length<4) return err.textContent="Pick at least 4 players.";
+      const tm={}, pids=[];
+      teams.forEach((p,i)=>{ const tid="d"+(i+1); tm[tid]={id:tid, members:p}; pids.push(tid); });
+      const {matches,rounds}=schedule(pids,cycles);
+      t={id,name,mode:"duo",teams:tm,players:pids,cycles,rounds,matches,status:"active",createdAt:Date.now(),createdBy:ME().id};
+    } else {
+      if(ids.length<2) return err.textContent="Pick at least 2 players.";
+      const {matches,rounds}=schedule(ids,cycles);
+      t={id,name,mode:"solo",players:ids,cycles,rounds,matches,status:"active",createdAt:Date.now(),createdBy:ME().id};
+    }
+    const first = Object.values(t.matches).sort((a,b)=>a.round-b.round||a.n-b.n)[0];
+    const map={["tournaments/"+id]:t, ...notifMap(tUsers(t), "🏁 "+name+" has started!", `First match: ${pName(t,first.home)} vs ${pName(t,first.away)}`)};
+    ui.tid=id; ui.view="home"; closeSheet(); dbUpdate(map); toast("Tournament created");
+  };
+}
+
+function sheetNotifs(){
+  const me=ME(), list=myNotifs().slice(0,40), un=unread();
+  openSheet(`<div class="h it" style="font-size:26px;font-weight:700;margin-bottom:8px">Notifications</div>
+    ${list.length? list.map(n=>`<div class="li" style="cursor:default;${!(n.read&&n.read[me.id])?"border-color:color-mix(in srgb,var(--a2) 60%,transparent)":""}">
+      <div class="grow"><div class="nm" style="font-size:14px">${esc(n.title)}</div><div class="small mut">${esc(n.body)}</div></div>
+      </div>`).join("") : `<div class="empty mut">Nothing yet.</div>`}`);
+  if(un.length){ const map={}; un.forEach(n=>map[`notifs/${n.id}/read/${me.id}`]=true); dbUpdate(map); }
+}
+
+function sheetAddUser(){
+  openSheet(`<div class="h it" style="font-size:26px;font-weight:700">Add player</div>
+    <div class="field"><label>Name</label><input class="inp" id="uname" autofocus></div>
+    
+    <div class="err" id="uerr"></div><button class="btn" id="saveu">Add player</button>`);
+  $("#saveu").onclick=()=>{
+    const name=$("#uname").value.trim(); if(!name) return $("#uerr").textContent="Enter a name.";
+    if(users().some(u=>u.name.toLowerCase()===name.toLowerCase())) return $("#uerr").textContent="That name already exists.";
+    let id="u_"+slug(name); if(U(id)) id=uid("u");
+    dbUpdate({["users/"+id]:{id,name,isAdmin:false,order:Date.now(),createdAt:Date.now()}}); closeSheet(); toast(name+" added");
+  };
+}
+function sheetChangePw(){
+  const me=ME();
+  openSheet(`<div class="h it" style="font-size:26px;font-weight:700">Change password</div>
+    <div class="field"><label>Current</label><input class="inp" type="password" id="cp0"></div>
+    <div class="field"><label>New</label><input class="inp" type="password" id="cp1"></div>
+    <div class="field"><label>Confirm</label><input class="inp" type="password" id="cp2"></div>
+    <div class="err" id="cperr"></div><button class="btn" id="savecp">Update</button>`);
+  $("#savecp").onclick=()=>{
+    const e=$("#cperr");
+    if(hashPw(me.id,$("#cp0").value)!==me.pass) return e.textContent="Current password is wrong.";
+    if($("#cp1").value.length<4) return e.textContent="Use at least 4 characters.";
+    if($("#cp1").value!==$("#cp2").value) return e.textContent="Passwords don't match.";
+    dbUpdate({[`users/${me.id}/pass`]:hashPw(me.id,$("#cp1").value)}); closeSheet(); toast("Password updated");
+  };
+}
+function sheetConfirm(title, text, okLabel, fn, danger){
+  openSheet(`<div class="h it" style="font-size:22px;font-weight:700;margin-bottom:16px">${title}</div>
+    <button class="btn ${danger?"danger":""}" id="okc">${okLabel}</button><button class="btn ghost" style="margin-top:8px" data-a="close">Cancel</button>`);
+  $("#okc").onclick=()=>{ closeSheet(); fn(); };
+}
+function finishTour(id){
+  const t=DB.tournaments[id], rows=standings(t), w=t.winner||rows[0].id;
+  dbUpdate({[`tournaments/${id}/status`]:"finished",[`tournaments/${id}/winner`]:w,[`tournaments/${id}/finishedAt`]:Date.now(),
+    ...notifMap("all","🏆 "+pName(t,w)+" win"+(isDuo(t)?"":"s")+" "+t.name+"!","The admin closed the tournament.")});
+}
+
+/* ================= EVENTS ================= */
+document.addEventListener("click", e=>{
+  const el=e.target.closest("[data-a]"); if(!el) return;
+  const a=el.dataset.a, id=el.dataset.id;
+  if(a==="closebg"){ if(e.target===el) closeSheet(); return; }
+  switch(a){
+    case "close": closeSheet(); break;
+    case "pickuser": ui.login={step:"pass",user:id}; render(); break;
+    case "loginback": ui.login={step:"pick"}; render(); break;
+    case "nav": ui.view=el.dataset.v; ui.profile=null; render(); scrollTo(0,0); break;
+    case "back": ui.profile=null; render(); break;
+    case "profile": ui.profile=id; render(); scrollTo(0,0); break;
+    case "notifs": sheetNotifs(); break;
+    case "newtour": sheetNewTour(); break;
+    case "score": sheetScore(el.dataset.t, el.dataset.m); break;
+    case "seltour": ui.tid=id; render(); break;
+    case "gotable": ui.tid=id; ui.view="table"; ui.profile=null; render(); scrollTo(0,0); break;
+    case "mfilter": ui.mfilter=el.dataset.v; render(); break;
+    case "adduser": sheetAddUser(); break;
+    case "changepw": sheetChangePw(); break;
+    case "logout": me_id=null; localStorage.removeItem("fl_me"); ui.profile=null; render(); break;
+    case "theme": localStorage.setItem("fl_theme",el.dataset.v); render(); break;
+    case "enablenotif": if("Notification" in window) Notification.requestPermission().then(()=>render()); break;
+    case "ackclinch": dbUpdate({[`tournaments/${id}/clinchAck`]:true}); toast("Remaining matches stay open"); break;
+    case "finish": sheetConfirm("Finish tournament?", "", "Finish & crown champion", ()=>finishTour(id)); break;
+    case "resetpw": sheetConfirm("Reset password?", `${esc(U(id).name)} will set a new password the next time they log in.`, "Reset", ()=>{ dbUpdate({[`users/${id}/pass`]:null}); toast("Password reset"); }); break;
+    case "toggleadmin": { const u=U(id); if(u.id===ME().id) return; dbUpdate({[`users/${id}/isAdmin`]:!u.isAdmin}); break; }
+    case "tmenu": { const t=DB.tournaments[id];
+      openSheet(`<div class="h it" style="font-size:24px;font-weight:700">${esc(t.name)}</div>
+        ${t.status==="active"?`<button class="btn sec2" style="margin-top:12px" id="tm_finish">Finish now</button>`:`<button class="btn sec2" style="margin-top:12px" id="tm_reopen">Reopen tournament</button>`}
+        <button class="btn danger" style="margin-top:8px" id="tm_del">Delete tournament</button>`);
+      const f=$("#tm_finish"); if(f) f.onclick=()=>{ closeSheet(); el.dataset.a="finish"; sheetConfirm("Finish tournament?","The current leader will be crowned. Unplayed matches stay unplayed.","Finish",()=>finishTour(id)); };
+      const r=$("#tm_reopen"); if(r) r.onclick=()=>{ closeSheet(); const rows=standings(t); dbUpdate({[`tournaments/${id}/status`]:"active",[`tournaments/${id}/finishedAt`]:null,[`tournaments/${id}/winner`]:isClinched(rows)?rows[0].id:null}); };
+      $("#tm_del").onclick=()=>sheetConfirm("Delete tournament?","This removes all its matches and stats. Can't be undone.","Delete",()=>{ ui.tid=null; dbUpdate({["tournaments/"+id]:null}); },true);
+      break; }
+  }
+});
+
+render();
+startData();
+if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
