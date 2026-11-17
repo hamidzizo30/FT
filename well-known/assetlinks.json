@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.leoapps.fridaytournament",
+      "sha256_cert_fingerprints": [
+        "9D:FD:E1:44:D3:4D:80:60:C3:D0:90:25:AE:91:A4:C2:F7:37:10:AB:DF:BD:D9:C1:4B:61:55:77:8B:BB:2A:1C"
+      ]
+    }
+  }
+]
