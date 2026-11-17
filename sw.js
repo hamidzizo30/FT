@@ -1,5 +1,5 @@
 // Friday League service worker: app shell offline, always fresh when online.
-const CACHE = "friday-league-v3";
+const CACHE = "friday-league-v4";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./maskable-512.png", "./apple-touch-icon.png", "./logo.svg"];
 
 self.addEventListener("install", e => {
