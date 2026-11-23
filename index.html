@@ -86,6 +86,8 @@ input,select{font:inherit;color:var(--txt)}
 .av.lg{width:60px;height:60px;font-size:22px}
 .av.xl{width:84px;height:84px;font-size:30px}
 .av.sm{width:28px;height:28px;font-size:11px}
+.av.img{background:var(--card2);border:1px solid var(--line);overflow:hidden}
+.av.img img{width:80%;height:80%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
 .duo{display:flex;flex:none}
 .duo .av{box-shadow:0 0 0 2px var(--bg)}
 .duo .av + .av{margin-left:-10px}
@@ -249,7 +251,14 @@ const hashPw = (userId,pw) => sha256(unescape(encodeURIComponent("fridayleague|"
 const COLORS = [["#2c50ff","#8a2cff"],["#ff2d6f","#8a1cff"],["#00b7ff","#2c50ff"],["#ff7a18","#ff2d55"],["#13d88a","#0a8bd6"],["#a13dff","#ff3dbb"],["#ffb800","#ff4d00"],["#00e0c6","#6b3dff"],["#ff4040","#7a0019"],["#5b7cff","#00d4ff"]];
 function avColor(id){ let h=0; for(const c of String(id)) h=(h*31+c.charCodeAt(0))>>>0; const [a,b]=COLORS[h%COLORS.length]; return a; }
 function initials(n){ return esc((n||"?").trim().slice(0,2).toUpperCase()); }
-function av(u, size=""){ if(!u) return `<div class="av ${size}" style="background:#333">?</div>`; return `<div class="av ${size}" style="background:${avColor(u.id)}">${initials(u.name)}</div>`; }
+const AVATARS = {mohamed:"avatar-mohamed.png", hamid:"avatar-hamid.png", chellali:"avatar-chellali.png", islam:"avatar-islam.png", hicham:"avatar-hicham.png", redouane:"avatar-redouane.png", radouane:"avatar-redouane.png", imad:"avatar-imad.png", ghani:"avatar-ghani.png"};
+function avatarOf(u){ return u && (AVATARS[u.id.replace(/^u_/,"")] || AVATARS[slug(u.name)]); }
+function av(u, size=""){
+  if(!u) return `<div class="av ${size}" style="background:#333">?</div>`;
+  const img = avatarOf(u);
+  if(img) return `<div class="av img ${size}"><img src="${img}" alt="${esc(u.name)}" loading="lazy" draggable="false"></div>`;
+  return `<div class="av ${size}" style="background:${avColor(u.id)}">${initials(u.name)}</div>`;
+}
 
 const ICON = {
   home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
