@@ -252,11 +252,12 @@ const COLORS = [["#2c50ff","#8a2cff"],["#ff2d6f","#8a1cff"],["#00b7ff","#2c50ff"
 function avColor(id){ let h=0; for(const c of String(id)) h=(h*31+c.charCodeAt(0))>>>0; const [a,b]=COLORS[h%COLORS.length]; return a; }
 function initials(n){ return esc((n||"?").trim().slice(0,2).toUpperCase()); }
 const AVATARS = {mohamed:"avatar-mohamed.png", hamid:"avatar-hamid.png", chellali:"avatar-chellali.png", islam:"avatar-islam.png", hicham:"avatar-hicham.png", redouane:"avatar-redouane.png", radouane:"avatar-redouane.png", imad:"avatar-imad.png", ghani:"avatar-ghani.png", yacine:"avatar-yacine.png"};
+[...new Set(Object.values(AVATARS))].forEach(src=>{ const i=new Image(); i.src=src; });
 function avatarOf(u){ return u && (AVATARS[u.id.replace(/^u_/,"")] || AVATARS[slug(u.name)]); }
 function av(u, size=""){
   if(!u) return `<div class="av ${size}" style="background:#333">?</div>`;
   const img = avatarOf(u);
-  if(img) return `<div class="av img ${size}"><img src="${img}" alt="${esc(u.name)}" loading="lazy" draggable="false"></div>`;
+  if(img) return `<div class="av img ${size}"><img src="${img}" alt="${esc(u.name)}" decoding="async" draggable="false"></div>`;
   return `<div class="av ${size}" style="background:${avColor(u.id)}">${initials(u.name)}</div>`;
 }
 
