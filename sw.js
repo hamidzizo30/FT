@@ -1,9 +1,9 @@
 // Friday League service worker
 // - pages/code: network first (updates show up right away), cache as offline fallback
 // - images (avatars, icons): cache first, refreshed quietly in the background
-const CACHE = "friday-league-v10";
-const IMG_CACHE = "friday-league-img-v1";
-const AVATARS = ["mohamed","hamid","chellali","yacine","islam","hicham","redouane","imad","ghani"].map(n => `./avatar-${n}.png`);
+const CACHE = "friday-league-v11";
+const IMG_CACHE = "friday-league-img-v2";
+const AVATARS = ["11","2","3","44","5","6","7","8","9"].map(n => `./${n}.png`);
 const SHELL = ["./", "./index.html", "./manifest.webmanifest"];
 const ICONS = ["./icon-192-trophy.png", "./icon-512-trophy.png", "./maskable-512-trophy.png", "./apple-touch-icon-trophy.png", "./favicon-48-trophy.png"];
 
