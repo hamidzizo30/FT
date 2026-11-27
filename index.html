@@ -251,7 +251,7 @@ const hashPw = (userId,pw) => sha256(unescape(encodeURIComponent("fridayleague|"
 const COLORS = [["#2c50ff","#8a2cff"],["#ff2d6f","#8a1cff"],["#00b7ff","#2c50ff"],["#ff7a18","#ff2d55"],["#13d88a","#0a8bd6"],["#a13dff","#ff3dbb"],["#ffb800","#ff4d00"],["#00e0c6","#6b3dff"],["#ff4040","#7a0019"],["#5b7cff","#00d4ff"]];
 function avColor(id){ let h=0; for(const c of String(id)) h=(h*31+c.charCodeAt(0))>>>0; const [a,b]=COLORS[h%COLORS.length]; return a; }
 function initials(n){ return esc((n||"?").trim().slice(0,2).toUpperCase()); }
-const AVATARS = {mohamed:"11.png", hamid:"2.png", chellali:"33.png", islam:"55.png", hicham:"6.png", redouane:"7.png", imad:"88.png", ghani:"9.png", yacine:"44.png"};
+const AVATARS = {mohamed:"11.png", hamid:"2.png", chellali:"33.png", islam:"555.png", hicham:"6.png", redouane:"7.png", imad:"88.png", ghani:"9.png", yacine:"44.png"};
 [...new Set(Object.values(AVATARS))].forEach(src=>{ const i=new Image(); i.src=src; });
 function avatarOf(u){ return u && (AVATARS[u.id.replace(/^u_/,"")] || AVATARS[slug(u.name)]); }
 function av(u, size=""){
